@@ -8,6 +8,8 @@ import Image from 'next/image'
 import SignOutButton from '@/components/SignOutButton'
 import FriendReqestsSidebarOptions from '@/components/FriendReqestsSidebarOptions'
 import { fetchRedis } from '@/helpers/redis'
+import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id'
+import SideBarChatList from '@/components/SideBarChatList'
 
 interface layoutProps {
   children: ReactNode
@@ -28,6 +30,8 @@ const layout = async ({ children }: layoutProps) => {
 
   if (!session) notFound()
 
+  const friends = await getFriendsByUserId(session.user.id)
+
   const unseenRequestCount = (
     (await fetchRedis(
       'smembers',
@@ -41,13 +45,17 @@ const layout = async ({ children }: layoutProps) => {
         <Link href='/dashboard' className='flex h-16 shrink-0 items-center'>
           <Icons.Logo className='h-8 w-auto text-indigo-600' />
         </Link>
-        <div className='text-xs font-semibold leading-6 text-gray-400 '>
-          Your Chats
-        </div>
+        {friends.length > 0 && (
+          <div className='text-xs font-semibold leading-6 text-gray-400 '>
+            Your Chats
+          </div>
+        )}
 
         <nav className='flex flex-1 flex-col'>
           <ul role='list' className='flex flex-1 flex-col gap-y-7'>
-            <li>//chats that this user has</li>
+            <li>
+              <SideBarChatList friends={friends} sessionId={session.user.id} />
+            </li>
             <li>
               <div className='text-xs font-semibold leading-6 text-gray-400'>
                 Overview
@@ -69,14 +77,13 @@ const layout = async ({ children }: layoutProps) => {
                     </li>
                   )
                 })}
+                <li>
+                  <FriendReqestsSidebarOptions
+                    sessionId={session.user.id}
+                    initailUnseenRequestCount={unseenRequestCount}
+                  />
+                </li>
               </ul>
-            </li>
-
-            <li>
-              <FriendReqestsSidebarOptions
-                sessionId={session.user.id}
-                initailUnseenRequestCount={unseenRequestCount}
-              />
             </li>
 
             <li className='-mx-6 mt-auto flex items-center'>
