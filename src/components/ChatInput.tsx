@@ -17,6 +17,8 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const sendMessage = async () => {
+    const currentMsg = input.trim()
+    if (!currentMsg) return
     setIsLoading(true)
 
     try {

@@ -1,18 +1,64 @@
 'use client'
 
-import { chatHrefConstructor } from '@/lib/utils'
+import { pusherClient } from '@/lib/pusher'
+import { chatHrefConstructor, toPusherKey } from '@/lib/utils'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { FC, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import UnseenChatToast from './UnseenChatToast'
 
 interface SideBarChatListProps {
   friends: User[]
   sessionId: string
 }
 
+interface ExtendedMessage extends Message {
+  senderImg: string
+  senderName: string
+}
+
 const SideBarChatList: FC<SideBarChatListProps> = ({ friends, sessionId }) => {
   const router = useRouter()
   const pathname = usePathname()
   const [unseenMessages, setUnseenmessages] = useState<Message[]>([])
+
+  useEffect(() => {
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`))
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`))
+
+    function chatHandler(message: ExtendedMessage) {
+      const shouldNotify =
+        pathname !==
+        `/dashboard/chat/${chatHrefConstructor(sessionId, message.senderId)}`
+
+      if (!shouldNotify) return
+      console.log('ok')
+      toast.custom((t) => (
+        <UnseenChatToast
+          t={t}
+          senderId={message.senderId}
+          sessionId={sessionId}
+          senderImg={message.senderImg}
+          senderMessage={message.text}
+          senderName={message.senderName}
+        />
+      ))
+
+      setUnseenmessages((prev) => [...prev, message])
+    }
+
+    function newFriendHandler() {
+      router.refresh()
+    }
+
+    pusherClient.bind('new_message', chatHandler)
+    pusherClient.bind('new_friend', newFriendHandler)
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`))
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:friends`))
+    }
+  }, [pathname, sessionId, router])
 
   useEffect(() => {
     if (pathname?.includes('chat')) {
@@ -39,7 +85,7 @@ const SideBarChatList: FC<SideBarChatListProps> = ({ friends, sessionId }) => {
             >
               {friend.name}
               {unseenMessagesCount > 0 && (
-                <div className=' bg-indigo-600 font-medium text-xs text-white w-4 h-4 flex justify-center items-center'>
+                <div className=' bg-indigo-600 font-medium text-xs text-white w-6 h-6 flex justify-center items-center rounded-full'>
                   {unseenMessagesCount}
                 </div>
               )}
