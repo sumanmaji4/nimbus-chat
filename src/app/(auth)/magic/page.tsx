@@ -10,9 +10,9 @@ const page: FC<pageProps> = async ({}) => {
     await signOut()
   } catch (error) {
     //
-    toast.error('kaisa laga mera mazak, 😂')
+    toast.error('kaisa laga mera mazak, hahaha')
   }
-  return <div>'kaisa laga mera mazak, 😂'</div>
+  return <div>'kaisa laga mera mazak, hahaha'</div>
 }
 
 export default page
