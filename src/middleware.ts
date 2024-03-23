@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith(route)
   )
 
-  //   console.log(isAuth, isLoginPage, pathname)
+  // console.log(isAuth, isLoginPage, pathname, ' ########################### ')
 
   if (isLoginPage) {
     if (isAuth) return NextResponse.redirect(new URL('/dashboard', req.url))
