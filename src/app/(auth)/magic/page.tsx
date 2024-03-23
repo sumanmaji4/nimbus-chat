@@ -12,7 +12,7 @@ const page: FC<pageProps> = async ({}) => {
     //
     toast.error('kaisa laga mera mazak, hahaha')
   }
-  return <div>'kaisa laga mera mazak, hahaha'</div>
+  return <div>kaisa laga mera mazak, hahaha</div>
 }
 
 export default page
