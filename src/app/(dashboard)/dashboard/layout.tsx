@@ -12,6 +12,7 @@ import { getFriendsByUserId } from '@/helpers/get-friends-by-user-id'
 import SideBarChatList from '@/components/SideBarChatList'
 import MobileChatLayout from '@/components/MobileChatLayout'
 import { SidebarOption } from '@/types/typings'
+import { redirect } from 'next/navigation'
 
 interface layoutProps {
   children: ReactNode
@@ -24,7 +25,11 @@ const sidebarOptions: SidebarOption[] = [
 const layout = async ({ children }: layoutProps) => {
   const session = await getServerSession(authOptions)
 
-  if (!session) notFound()
+  if (!session) {
+    redirect('/magic')
+    // console.log('----------------Im here--------------')
+    // notFound()
+  }
 
   const friends = await getFriendsByUserId(session.user.id)
 
