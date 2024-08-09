@@ -62,7 +62,7 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
         <div className=' absolute right-0 bottom-0 flex justify-between py-2 pl-3 pr-2'>
           <div className=' flex-shrink-0'>
             <Button onClick={sendMessage} type='submit' isLoading={isLoading}>
-              Post
+              Send
             </Button>
           </div>
         </div>
